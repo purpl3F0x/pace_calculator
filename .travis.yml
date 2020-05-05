@@ -30,15 +30,8 @@ after_success:
 
 deploy:
   provider: pages
-  skip_cleanup: true
-  local_dir: web/  # or remove this line to upload from root of repo
   github_token: $GITHUB_OAUTH_TOKEN
+  local_dir: web/
+  skip_cleanup: true
   on:
     branch: master
-
-#deploy:
-#  provider: releases
-#  api_key: $GITHUB_OAUTH_TOKEN
-#  file: release.zip
-#  skip_cleanup: true
-#  draft: true
