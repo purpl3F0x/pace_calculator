@@ -1,34 +1,36 @@
 <!doctype html>
 <html>
-  <head>
-  <script src="./gen/pace.js"></script>
-  <script>
-  Module['onRuntimeInitialized'] = () => {
-    // console.log(Module.analyse("", 100));
-  }
-  </script>
-  </head>
+<head>
+    <script src="./gen/pace.js"></script>
+    <script>
+        Module['onRuntimeInitialized'] = () => {
+            // console.log(Module.analyse("", 100));
+        }
+    </script>
+</head>
 
+
+<body>
 
 <input type='file' accept='.tcx' onchange='openFile(event)'><br>
 <div id='output'>
-...
+    ...
 </div>
 </body>
 
 <script>
-  var openFile = function (event) {
-  var input = event.target;
+    var openFile = function (event) {
+        var input = event.target;
 
-  var reader = new FileReader();
-  reader.onload = function () {
-    var text = reader.result;
-    res = Module.analyse(text, 10800)
+        var reader = new FileReader();
+        reader.onload = function () {
+            var text = reader.result;
+            res = Module.analyse(text, 10800)
 
-    console.log(res);
+            console.log(res);
 
-  };
-  reader.readAsText(input.files[0]);
-};
+        };
+        reader.readAsText(input.files[0]);
+    };
 </script>
 </html>

@@ -27,7 +27,7 @@ after_success:
   - mkdir ./web/gen;
   - cp pace.js web/gen/pace.js;
   - cp pace.wasm web/gen/pace.wasm;
-  - cp -a /static/. /web/
+  - cp -ar ./static/ ./web/
 
 
 deploy:
