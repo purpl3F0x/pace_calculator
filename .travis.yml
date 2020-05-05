@@ -23,14 +23,13 @@ script:
   - docker exec -it emscripten emcc .src/pace_calculator_js.cc -o pace.js --bind -O3 -std=c++17 -I"./include" -I"./external/pugixml-1.10/src" "./external/pugixml-1.10/src/pugixml.cpp"
 
 after_success:
-  - zip -r release.zip pace.js pace.wasm;
-  - if [ -n "$GITHUB_OAUTH_TOKEN" ]; then
-      cd "$TRAVIS_BUILD_DIR"
-      # This generates a `web` directory containing the website.
-      make web
-      cp ./pace.js ./web/gen/pace.js
-      cp ./pace.wasm ./web/gen/pace.wasm
-    fi
+  if [ -n "$GITHUB_OAUTH_TOKEN" ]; then
+    cd "$TRAVIS_BUILD_DIR"
+    # This generates a `web` directory containing the website.
+    make web
+    cp ./pace.js ./web/gen/pace.js
+    cp ./pace.wasm ./web/gen/pace.wasm
+  fi
 
 deploy:
   provider: pages
