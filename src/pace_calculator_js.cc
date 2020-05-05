@@ -3,13 +3,13 @@
 #include <string>
 #include <iostream>
 
-#include "include/arange.h"
-#include "include/elevation_adj.h"
-#include "include/gradient.h"
-#include "include/interpolate.h"
-#include "include/linspace.h"
-#include "include/smooth.h"
-#include "include/tcx.h"
+#include "arange.h"
+#include "elevation_adj.h"
+#include "gradient.h"
+#include "interpolate.h"
+#include "linspace.h"
+#include "smooth.h"
+#include "tcx.h"
 
 
 # ifdef __EMSCRIPTEN__
