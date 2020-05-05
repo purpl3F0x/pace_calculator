@@ -1,6 +1,7 @@
 notifications:
   email: false
 
+dist: bionic
 language: node_js
 node_js:
   - node
@@ -15,4 +16,4 @@ before_install:
 
 script:
   - docker exec -it emscripten make helloworld.js
-  - emcc pace_calculator_js.cc -o pace.js --bind -O3 -I"./external/pugixml-1.10/src" "./external/pugixml-1.10/src/pugixml.cpp"
+  - docker exec -it emscripten pace_calculator_js.cc -o pace.js --bind -O3 -I"./external/pugixml-1.10/src" "./external/pugixml-1.10/src/pugixml.cpp"
