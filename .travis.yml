@@ -8,6 +8,11 @@ node_js:
 
 sudo: required
 
+packages:
+  - clang-8
+  - libc++-8-dev
+  - libc++abi-8-dev
+
 services:
   - docker
 
@@ -16,4 +21,4 @@ before_install:
 
 script:
   - docker exec -it emscripten make helloworld.js
-  - docker exec -it emscripten emcc pace_calculator_js.cc -o pace.js --bind -O3 -I"./external/pugixml-1.10/src" "./external/pugixml-1.10/src/pugixml.cpp"
+  - docker exec -it emscripten emcc pace_calculator_js.cc -o pace.js --bind -O3 -std=c++17 -I"./external/pugixml-1.10/src" "./external/pugixml-1.10/src/pugixml.cpp"
