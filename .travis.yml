@@ -1,0 +1,18 @@
+notifications:
+  email: false
+
+language: node_js
+node_js:
+  - node
+
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten:sdk-incoming-64bit bash
+
+script:
+  - docker exec -it emscripten make helloworld.js
+  - emcc pace_calculator_js.cc -o pace.js --bind -O3 -I"./external/pugixml-1.10/src" "./external/pugixml-1.10/src/pugixml.cpp"
