@@ -11,53 +11,70 @@
 #include "smooth.h"
 #include "tcx.h"
 
+#include <chrono>
+
 
 # ifdef __EMSCRIPTEN__
+
 #include <emscripten/bind.h>
 
-using namespace emscripten;
 # endif //__EMSCRIPTEN__
 
 
-std::vector<uint32_t> analyse_(const std::string &s, const unsigned target_time) {
-    auto tcx = parseString2TCX(s);
+# ifdef __EMSCRIPTEN__
 
+struct Result {
+    emscripten::val pace = emscripten::val::null();                 // Uint32Array (to be :D )
+    emscripten::val elevation = emscripten::val::null();            // Float64Array
+    emscripten::val elevationSmoothed = emscripten::val::null();    // Float64Array
+    emscripten::val gradient = emscripten::val::null();             // Float64Array
+
+    std::vector<uint32_t> pace_v;
+    std::vector<double> elevation_v;
+    std::vector<double> elevationSmoothed_v;
+    std::vector<double> gradient_v;
+
+    unsigned avg_pace = 0;
+    unsigned distance = 0;
+};
+
+
+Result analyse(const std::string &s, const unsigned target_time) {
+    Result out;
+
+    const auto tcx = parseString2TCX(s);
     if (tcx.size() < 2) return {};
 
-    auto ySampled = interpolate<double>(tcx.DistanceMeters,
-                                        tcx.AltitudeMeters,
-                                        arange<int>(tcx.DistanceMeters.front(), tcx.DistanceMeters.back())
-    );
-
-    auto ySmoothed = smoothElevationData(ySampled, linspace<std::size_t>(0, ySampled.size(), ySampled.size()), 2500);
-
-    auto altitude_gradient = gradient<>(ySmoothed);
-
-    for (auto &i: ySmoothed) std::cout << i << " ";
-    std::cout << "\n";
+    auto *arranged = new std::vector<int>(arange<int>(tcx.DistanceMeters.front(), tcx.DistanceMeters.back()));
+    out.elevation_v = interpolate<double>(tcx.DistanceMeters, tcx.AltitudeMeters, *arranged);
+    out.elevationSmoothed_v = smoothElevationData(out.elevation_v, linspace<std::size_t>(
+        0, out.elevation_v.size(), out.elevation_v.size()), 2500);
+    out.gradient_v = gradient(out.elevationSmoothed_v);
+    out.pace_v = adjusted_pace(out.gradient_v, target_time, (target_time / tcx.DistanceMeters.back() * 1000));
 
 
-    auto adj_pace = adjusted_pace(altitude_gradient, target_time, (target_time / tcx.DistanceMeters.back() * 1000));
+    out.elevation = emscripten::val(emscripten::typed_memory_view(out.elevation_v.size(), out.elevation_v.data()));
+    out.elevationSmoothed =
+        emscripten::val(emscripten::typed_memory_view(out.elevationSmoothed_v.size(), out.elevationSmoothed_v.data()));
+    out.gradient = emscripten::val(emscripten::typed_memory_view(out.gradient_v.size(), out.gradient_v.data()));
+    out.pace = emscripten::val(emscripten::typed_memory_view(out.pace_v.size(), out.pace_v.data()));
 
-    return adj_pace;
+    return out;
 }
-
-
-# ifdef __EMSCRIPTEN__
-emscripten::val analyse(const std::string &s, const unsigned target_time) {
-    val heapU8 = val::module_property("HEAPU8");
-    val asmJSHeapBuffer = heapU8["buffer"];
-
-    auto res = analyse_(s, target_time);
-
-    return val::global("Uint32Array").new_(asmJSHeapBuffer, reinterpret_cast<uintptr_t>(res.data()), res.size());
-}
-
-
 
 
 EMSCRIPTEN_BINDINGS(pace_calculator_js) {
-    function("analyse", &analyse, allow_raw_pointers());
+    function("analyse", &analyse, emscripten::allow_raw_pointers());
+
+    emscripten::class_<Result>("Result")
+        .constructor<>()
+        .property("pace", &Result::pace)
+        .property("elevation", &Result::elevation)
+        .property("elevationSmoothed", &Result::elevationSmoothed)
+        .property("gradient", &Result::gradient)
+        .property("avg_pace", &Result::avg_pace)
+        .property("distance", &Result::distance);
+
 }
 
 

@@ -1,12 +1,3 @@
-/*  
-*   smooth.h
-*   -------------------------
-*   Enter Description
-*   -------------------------
-*   Stavros Avramidis	2/5/2020
-*/
-
-
 #pragma once
 
 #include <algorithm>

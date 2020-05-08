@@ -4,28 +4,25 @@
 #include <vector>
 
 
+/**
+ * @brief Return evenly spaced numbers over a specified interval. Assumes num_in > 2, And start < end
+ * @tparam T
+ * @param start_in  The starting value of the sequence.
+ * @param end_in    The end value of the sequence.
+ * @param num_in    Number of samples to generate
+ * @return
+ */
 template<typename T>
-std::vector<double> linspace(T start_in, T end_in, std::size_t num_in) {
+std::vector<double> linspace(const double start, const double end, const std::size_t num_in) {
+    std::vector<double> out(num_in);
 
-    std::vector<double> out;
-
-    const auto start = static_cast<double>(start_in);
-    const auto end = static_cast<double>(end_in);
     const auto num = static_cast<double>(num_in);
+    const auto delta = static_cast<double>((end - start) / (num - 1));
 
-    if (num == 0) { return out; }
+    for (std::size_t i = 0; i < num - 1; ++i)
+        out[i] = (start + delta * i);
 
-    if (num == 1) {
-        out.push_back(start);
-        return out;
-    }
-
-    double delta = (end - start) / (num - 1);
-
-    for (std::size_t i = 0; i < num - 1; ++i) {
-        out.push_back(start + delta * i);
-    }
-    out.push_back(end);
+    out.back() = end;
 
     return out;
 }

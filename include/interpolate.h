@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <vector>
 
@@ -5,7 +7,7 @@
 template<typename T1, typename T2>
 double interpolate(const std::vector<T1> &xData, const std::vector<T1> &yData, const T2 x, const bool extrapolate = false) {
 
-    std::size_t size = xData.size();
+    const auto size = xData.size();
 
     std::size_t i = 0;
     if (x >= xData[size - 2])
@@ -30,11 +32,11 @@ double interpolate(const std::vector<T1> &xData, const std::vector<T1> &yData, c
 
 template<typename T1, typename T2>
 std::vector<double>
-interpolate(const std::vector<T1> &xData, const std::vector<T1> &yData, const std::vector<T2>& x, const bool extrapolate = false) {
+interpolate(const std::vector<T1> &xData, const std::vector<T1> &yData, const std::vector<T2> &x, const bool extrapolate = false) {
 
     std::vector<double> out(x.size());
     std::transform(x.begin(), x.end(), out.begin(),
-                   [&xData, &yData, &extrapolate](const T2 &v) {
+                   [&xData, &yData, &extrapolate](const auto &v) {
                      return interpolate<T1, T2>(xData, yData, v, extrapolate);
                    }
     );
