@@ -21,11 +21,9 @@ std::vector<R> gradient(const std::vector<T> &y) {
             out[y.size() - 1] = y[y.size() - 1] - y[y.size() - 2];
     }
 
-
-    for (int i = 1; i < y.size() - 1; i++) {
+    // TODO: use transform
+    for (auto i = 1u; i < y.size() - 1; i++)
         out[i] = 0.5 * (y[i + 1] - y[i - 1]);
-    }
-
 
     return out;
 }

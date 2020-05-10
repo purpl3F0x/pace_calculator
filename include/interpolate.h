@@ -1,45 +1,68 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
+#include <type_traits>
 #include <vector>
 
+#if (__cplusplus < 202002L)
 
-template<typename T1, typename T2>
-double interpolate(const std::vector<T1> &xData, const std::vector<T1> &yData, const T2 x, const bool extrapolate = false) {
 
-    const auto size = xData.size();
-
-    std::size_t i = 0;
-    if (x >= xData[size - 2])
-        i = size - 2;
-    else
-        while (x > xData[i + 1])
-            i++;
-
-    double xL = xData[i], yL = yData[i], xR = xData[i + 1], yR = yData[i + 1];
-    if (!extrapolate) {
-        if (x < xL)
-            yR = yL;
-        if (x > xR)
-            yL = yR;
-    }
-
-    double dy_dx = (yR - yL) / (xR - xL); // gradient
-
-    return yL + dy_dx * (x - xL); // linear interpolation
+template<typename T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+T lerp(T a, T b, T t) noexcept {
+    return a + t * (b - a);
 }
 
 
-template<typename T1, typename T2>
-std::vector<double>
-interpolate(const std::vector<T1> &xData, const std::vector<T1> &yData, const std::vector<T2> &x, const bool extrapolate = false) {
+#else
+using std::lerp;
+#endif
 
-    std::vector<double> out(x.size());
+
+template<typename T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+class ListLerp {
+ public:
+  explicit ListLerp(const std::vector<T> &xp, const std::vector<T> &yp) : xp(xp), yp(yp) {
+      b = this->xp.begin() + 1;
+  }
+
+
+  T interp(const T x) noexcept {
+      // No extrapolation
+      if (x <= xp.front()) return yp.front();
+      if (x >= xp.back()) return yp.back();
+
+      // find b positions
+      while (x > *b) b++;
+
+      // Calculate a, a_y, b_y
+      const auto a = b - 1;
+      const auto a_y = yp.begin() + (a - xp.begin());
+      const auto b_y = yp.begin() + (b - xp.begin());
+
+      const auto t = (x - *a) / (*b - *a);
+
+      return lerp(*a_y, *b_y, t);
+  };
+
+ private:
+  typename std::vector<T>::const_iterator b;
+  const std::vector<T> &xp;
+  const std::vector<T> &yp;
+};
+
+
+template<typename T>
+std::vector<T> interp(const std::vector<T> &xp, const std::vector<T> &yp, const std::vector<T> &x) {
+    std::vector<T> out(x.size());
+
+    auto lLerp = ListLerp<T>(xp, yp);
+
     std::transform(x.begin(), x.end(), out.begin(),
-                   [&xData, &yData, &extrapolate](const auto &v) {
-                     return interpolate<T1, T2>(xData, yData, v, extrapolate);
+                   [&lLerp](const auto &xi) {
+                     return lLerp.interp(xi);
                    }
     );
 
     return out;
-};
+}

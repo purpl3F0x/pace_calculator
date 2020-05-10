@@ -17,12 +17,12 @@ std::vector<double> highPassSmoothing(const std::vector<double> &x, const std::v
 
     double dfTime = 0.0;
 
-    for (auto i = 1; i < size; i++) {
+    for (auto i = 1u; i < size; i++) {
         dfTime = (x[i] - x[i - 1]) / tao;
         smoothForward[i] = (smoothForward[i - 1] + dfTime * y[i]) / (1 + dfTime);
     }
 
-    for (auto i = 2; i < size + 1; i++) {
+    for (auto i = 2u; i < size + 1; i++) {
         dfTime = (x[size - i + 1] - x[size - i]) / tao;
         smoothBack[size - i] =
             (smoothBack[size - i + 1] + dfTime * y[size - i]) / (1 + dfTime);
