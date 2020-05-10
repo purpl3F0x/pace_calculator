@@ -1,7 +1,6 @@
 
 
 #include <string>
-#include <iostream>
 
 #include "arange.h"
 #include "elevation_adj.h"
@@ -47,7 +46,7 @@ Result analyse(const std::string &s, const unsigned target_time) {
     if (tcx.size() < 2) return out;
 
     auto arranged = arange<double>(tcx.DistanceMeters.front(), tcx.DistanceMeters.back());
-    out.elevation_v = interp<double>(tcx.DistanceMeters, tcx.AltitudeMeters, arranged);
+    out.elevation_v = interp(tcx.DistanceMeters, tcx.AltitudeMeters, arranged);
     out.elevationSmoothed_v = smoothElevationData(out.elevation_v, linspace<std::size_t>(
         0, out.elevation_v.size(), out.elevation_v.size()), 2500);
     out.gradient_v = gradient(out.elevationSmoothed_v);
@@ -64,7 +63,7 @@ Result analyse(const std::string &s, const unsigned target_time) {
     // must check with real average
     out.avg_pace = unsigned(target_time / tcx.DistanceMeters.back() * 1000.);
 
-    return {};
+    return out;
 }
 
 
