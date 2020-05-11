@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+    <script src="./gen/pace.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <script>
+        Module['onRuntimeInitialized'] = () => {
+            // console.log(Module.analyse("", 100));
+        }
+    </script>
+</head>
+
+
+<body>
+
+<input type='file' accept='.tcx' onchange='openFile(event)'><br>
+<div id='chart'>
+</div>
+</body>
+
+<script>
+
+    let options = {
+        series: [
+            {
+                name: "Pace",
+                data: []
+            }
+        ],
+        chart: {
+            type: "line",
+            height: 350,
+            animations: {
+                enabled: false
+            }
+        },
+        stroke: {
+            curve: "stepline"
+        },
+        dataLabels: {
+            enabled: false
+        },
+        title: {
+            text: "Stepline Chart",
+            align: "left"
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                gradientToColors: ['#fd3553'],
+                shadeIntensity: 1,
+                type: 'vertical',
+                opacityFrom: 1,
+                opacityTo: 1,
+                stops: [0, 1000]
+            },
+        },
+        markers: {
+            hover: {
+                sizeOffset: 4
+            }
+        },
+        xaxis: {
+            type: 'numeric',
+            labels: {
+                formatter: function (value) {
+                    return Math.round((value / 1000 * 100)) / 100;
+                }
+            },
+            min: 0,
+            // max: 42000,
+            tickAmount: 10,
+        },
+        yaxis: {
+            type: 'numeric',
+            reversed: true,
+            labels: {
+                formatter: function (value) {
+                    return Math.floor(value / 60).toString() + ":" + value % 60 + " km/min";
+                }
+            },
+
+        },
+        annotations: {
+            yaxis: [{
+                y: 254.4,
+                borderColor: '#999',
+                label: {
+                    show: true,
+                    text: 'Average Pace',
+                    style: {
+                        color: "#fff",
+                        background: '#00E396'
+                    }
+                }
+            }]
+        }
+    };
+
+    const openFile = function (event) {
+        const input = event.target;
+
+        const reader = new FileReader();
+        reader.onload = function () {
+            const text = reader.result;
+            let start = performance.now();
+            let res = Module.analyse(text, 10800);
+            let end = performance.now()
+            console.log(end - start);
+
+            start = performance.now();
+
+            options.series[0].data = Array.from(res.pace);
+            end = performance.now()
+            console.log(end - start);
+
+            const chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        };
+        reader.readAsText(input.files[0]);
+    };
+</script>
+</html>
